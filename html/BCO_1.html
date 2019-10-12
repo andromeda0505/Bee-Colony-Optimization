@@ -1,0 +1,359 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>BCO_1</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-12"><meta name="DC.source" content="BCO_1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Bee Colony algorithm optimization for solving a TSP problem with 12 cities)</span>
+<span class="comment">% written by Mojtaba Eslami</span>
+
+clear <span class="string">all</span>
+
+n = 12; <span class="comment">% the number of cities in the TSP problem. In this problem it is</span>
+        <span class="comment">% assumed that all cities are located on a circle</span>
+
+<span class="keyword">for</span> k=1:n
+    x(k) = cos(k*2*pi/n);
+    y(k) = sin(k*2*pi/n);
+<span class="keyword">end</span>
+
+figure(1);clf;hold <span class="string">on</span>
+plot(x,y,<span class="string">'k.'</span>)
+axis <span class="string">square</span>
+xlabel(<span class="string">'x'</span>)
+ylabel(<span class="string">'y'</span>)
+
+axis([-2 2 -2 2])
+
+
+
+<span class="comment">% parameters of the BCO algorithm</span>
+B = 50; <span class="comment">% number of artificial bees in the hive. NC is assumed to be equal to unity</span>
+
+solution = zeros(B,n); <span class="comment">% solution(k,:) contains the number of sucsessive nodes found by the k'th bee</span>
+solution(:,1) = ones(B,1);
+city_count = 1;
+
+max_iter = 100;
+best_min(1) = 1e5;
+
+<span class="keyword">for</span> k=1:max_iter
+    <span class="keyword">while</span> 1
+
+        possible_moves = zeros(B,n-city_count);
+        <span class="keyword">for</span> z=1:B
+            c = 1;
+            <span class="keyword">for</span> s=1:n
+                <span class="keyword">if</span> all(solution(z,:)~=s) &amp;&amp; all(possible_moves(z,:)~=s)
+                    possible_moves(z,c) = s;
+                    c = c+1;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> z=1:B
+            <span class="keyword">for</span> s=1:n-city_count
+                move_length(z,s) = sqrt((x(solution(z,city_count))-x(possible_moves(z,s)))^2 <span class="keyword">...</span>
+                    +(y(solution(z,city_count))-y(possible_moves(z,s)))^2);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> z=1:B
+            p(z,:) = 1./move_length(z,:);
+            P(z,:) = p(z,:)/sum(p(z,:));
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> z = 1:B
+            s = 0;
+            temp = rand;
+            count2 = 0;
+            <span class="keyword">while</span> s&lt;temp
+                s = s+P(z,count2+1);
+                count2 = count2+1;
+            <span class="keyword">end</span>
+            solution(z,city_count+1) = possible_moves(z,count2);
+
+        <span class="keyword">end</span>
+
+    <span class="comment">%backward pass</span>
+
+    <span class="comment">% calculation of the fitness function</span>
+        temp1 = zeros(1,B);
+        <span class="keyword">for</span> z=1:B
+            <span class="keyword">for</span> s=1:city_count
+                temp1(z) = temp1(z)+sqrt((x(solution(z,s))-x(solution(z,s+1)))^2 <span class="keyword">...</span>
+                    +(y(solution(z,s))-y(solution(z,s+1)))^2);
+            <span class="keyword">end</span>
+            temp1(z) = temp1(z)+sqrt((x(solution(z,city_count+1))-x(solution(z,1)))^2+(y(solution(z,city_count+1))-y(solution(z,1)))^2);
+        <span class="keyword">end</span>
+
+        <span class="keyword">for</span> z=1:B
+            fitness(z) = 1/temp1(z);
+        <span class="keyword">end</span>
+
+        pm = fitness/sum(fitness);
+
+    <span class="comment">% implementation of the roulette-wheel</span>
+        <span class="keyword">for</span> z = 1:B
+            s = 0;
+            temp = rand;
+            count2 = 0;
+            <span class="keyword">while</span> s&lt;temp
+                s = s+pm(count2+1);
+                count2 = count2+1;
+            <span class="keyword">end</span>
+            solution_new(z,:) = solution(count2,:);
+
+        <span class="keyword">end</span>
+
+        <span class="comment">% saving the best results obtained so far</span>
+
+        clear <span class="string">possible_moves</span> <span class="string">move_length</span> <span class="string">p</span> <span class="string">P</span>
+
+        city_count = city_count+1;
+
+        <span class="keyword">if</span> city_count&lt;n
+            solution = solution_new;
+        <span class="keyword">else</span>
+            <span class="keyword">break</span>
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span> <span class="comment">% end while</span>
+
+    <span class="keyword">if</span> all(min(temp1)&lt;best_min)
+        best_min(k) = min(temp1);
+        best_tour = solution(find(temp1==min(temp1)),:);
+    <span class="keyword">else</span>
+        best_min(k) = min(best_min);
+    <span class="keyword">end</span>
+    city_count = 1;
+    solution = zeros(B,n);
+    solution(:,1) = ones(B,1);
+<span class="keyword">end</span>
+
+
+figure(1)
+<span class="keyword">for</span> k=1:n-1
+    line([x(best_tour(1,k)) x(best_tour(1,k+1))],[y(best_tour(1,k)) y(best_tour(1,k+1))])
+<span class="keyword">end</span>
+line([x(best_tour(1,end)) x(best_tour(1,1))],[y(best_tour(1,end)) y(best_tour(1,1))])
+
+figure(2)
+plot(best_min,<span class="string">'k.'</span>)
+xlabel(<span class="string">'iteration number'</span>)
+ylabel(<span class="string">'tour length'</span>)
+
+sprintf(<span class="string">'minimum tour length: %f'</span>, n*sqrt((1-cos(2*pi/n))^2+(sin(2*pi/n))^2))
+</pre><pre class="codeoutput">
+ans =
+
+    'minimum tour length: 6.211657'
+
+</pre><img vspace="5" hspace="5" src="BCO_1_01.png" alt=""> <img vspace="5" hspace="5" src="BCO_1_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Bee Colony algorithm optimization for solving a TSP problem with 12 cities)
+% written by Mojtaba Eslami
+
+clear all
+
+n = 12; % the number of cities in the TSP problem. In this problem it is 
+        % assumed that all cities are located on a circle
+
+for k=1:n
+    x(k) = cos(k*2*pi/n);
+    y(k) = sin(k*2*pi/n);
+end
+
+figure(1);clf;hold on
+plot(x,y,'k.')
+axis square
+xlabel('x')
+ylabel('y')
+
+axis([-2 2 -2 2])
+
+
+
+% parameters of the BCO algorithm
+B = 50; % number of artificial bees in the hive. NC is assumed to be equal to unity
+
+solution = zeros(B,n); % solution(k,:) contains the number of sucsessive nodes found by the k'th bee
+solution(:,1) = ones(B,1);
+city_count = 1;
+
+max_iter = 100;
+best_min(1) = 1e5;
+
+for k=1:max_iter
+    while 1
+    
+        possible_moves = zeros(B,n-city_count);
+        for z=1:B
+            c = 1;
+            for s=1:n
+                if all(solution(z,:)~=s) && all(possible_moves(z,:)~=s)
+                    possible_moves(z,c) = s;
+                    c = c+1;
+                end
+            end
+        end
+    
+        for z=1:B
+            for s=1:n-city_count
+                move_length(z,s) = sqrt((x(solution(z,city_count))-x(possible_moves(z,s)))^2 ...
+                    +(y(solution(z,city_count))-y(possible_moves(z,s)))^2);
+            end
+        end
+
+        for z=1:B
+            p(z,:) = 1./move_length(z,:);
+            P(z,:) = p(z,:)/sum(p(z,:));
+        end
+    
+        for z = 1:B 
+            s = 0;
+            temp = rand;
+            count2 = 0;
+            while s<temp
+                s = s+P(z,count2+1);
+                count2 = count2+1;
+            end
+            solution(z,city_count+1) = possible_moves(z,count2);
+
+        end
+    
+    %backward pass
+    
+    % calculation of the fitness function
+        temp1 = zeros(1,B);
+        for z=1:B
+            for s=1:city_count
+                temp1(z) = temp1(z)+sqrt((x(solution(z,s))-x(solution(z,s+1)))^2 ...
+                    +(y(solution(z,s))-y(solution(z,s+1)))^2);
+            end
+            temp1(z) = temp1(z)+sqrt((x(solution(z,city_count+1))-x(solution(z,1)))^2+(y(solution(z,city_count+1))-y(solution(z,1)))^2);
+        end
+    
+        for z=1:B
+            fitness(z) = 1/temp1(z);
+        end
+    
+        pm = fitness/sum(fitness);
+        
+    % implementation of the roulette-wheel
+        for z = 1:B 
+            s = 0;
+            temp = rand;
+            count2 = 0;
+            while s<temp
+                s = s+pm(count2+1);
+                count2 = count2+1;
+            end
+            solution_new(z,:) = solution(count2,:);
+
+        end
+            
+        % saving the best results obtained so far
+        
+        clear possible_moves move_length p P
+
+        city_count = city_count+1;
+        
+        if city_count<n
+            solution = solution_new;
+        else
+            break
+        end
+
+    end % end while
+
+    if all(min(temp1)<best_min)
+        best_min(k) = min(temp1);
+        best_tour = solution(find(temp1==min(temp1)),:);
+    else
+        best_min(k) = min(best_min);
+    end
+    city_count = 1;
+    solution = zeros(B,n); 
+    solution(:,1) = ones(B,1);
+end
+
+
+figure(1)
+for k=1:n-1
+    line([x(best_tour(1,k)) x(best_tour(1,k+1))],[y(best_tour(1,k)) y(best_tour(1,k+1))])
+end
+line([x(best_tour(1,end)) x(best_tour(1,1))],[y(best_tour(1,end)) y(best_tour(1,1))])
+
+figure(2)
+plot(best_min,'k.')
+xlabel('iteration number')
+ylabel('tour length')
+
+sprintf('minimum tour length: %f', n*sqrt((1-cos(2*pi/n))^2+(sin(2*pi/n))^2))
+
+
+##### SOURCE END #####
+--></body></html>
