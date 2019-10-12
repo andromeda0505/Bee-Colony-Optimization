@@ -1,0 +1,307 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>ABC_1</title><meta name="generator" content="MATLAB 9.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-10-12"><meta name="DC.source" content="ABC_1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Bee Colony algorithm, written by Mojtaba Eslami</span>
+
+clear <span class="string">all</span>
+
+ul = 0; <span class="comment">% lower bound of design variables</span>
+uh = 4; <span class="comment">% higher bound of design variables</span>
+
+x = [ul:0.01:uh];
+y = [ul:0.01:uh];
+<span class="keyword">for</span> i=1:length(x)
+    <span class="keyword">for</span> j=1:length(y)
+        f(i,j) = -sin(y(j))*sin(y(j)^2/pi)^20-sin(x(i))*sin(2*x(i)^2/pi)^20;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+figure(1);clf;hold <span class="string">on</span>
+contour(x,y,f,20)
+xlabel(<span class="string">'x_1'</span>)
+ylabel(<span class="string">'x_2'</span>)
+
+axis([ul uh ul uh])
+colormap(gray)
+
+figure(2);clf;hold <span class="string">on</span>
+contour(x,y,f,20)
+xlabel(<span class="string">'x_1'</span>)
+ylabel(<span class="string">'x_2'</span>)
+
+axis([ul uh ul uh])
+colormap(gray)
+
+SN = 30; <span class="comment">% number of bees in colony</span>
+n = 2;   <span class="comment">% number of varibles of the optimization problem</span>
+a = .1;
+
+<span class="comment">% initialization</span>
+x = ul+(uh-ul)*rand(n,SN);
+
+figure(1)
+plot(x(1,:),x(2,:),<span class="string">'k.'</span>)
+
+lim = 10;
+
+<span class="keyword">for</span> k=1:200
+
+    <span class="comment">% setting the position of employed bees</span>
+    <span class="keyword">for</span> z=1:SN
+        temp = ceil(SN*rand);
+        v(1,z) = x(1,z)+(-a+2*a*rand).*(x(1,z)-x(1,ceil(SN*rand)));
+        <span class="keyword">while</span> temp==z
+            temp = ceil(SN*rand);
+            v(1,z) = x(1,z)+(-a+2*a*rand).*(x(1,z)-x(1,ceil(SN*rand)));
+        <span class="keyword">end</span>
+
+        temp = ceil(SN*rand);
+        v(2,z) = x(2,z)+(-a+2*a*rand).*(x(2,z)-x(2,ceil(SN*rand)));
+        <span class="keyword">while</span> temp==z
+            temp = ceil(SN*rand);
+            v(2,z) = x(2,z)+(-a+2*a*rand).*(x(2,z)-x(2,ceil(SN*rand)));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% calculation of the fitness function</span>
+    temp1 = -sin(v(1,:)).*sin(v(1,:).^2/pi).^20-sin(v(2,:)).*sin(2*v(2,:).^2/pi).^20;
+
+    <span class="comment">% onlooker bees</span>
+    <span class="keyword">for</span> z=1:length(temp1)
+        <span class="keyword">if</span> temp1(z)&gt;=0
+            fitness(z) = 1/(1+temp1(z));
+        <span class="keyword">else</span>
+            fitness(z) = 1+abs(temp1(z));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    pm = fitness/sum(fitness);
+
+    <span class="comment">% saving the best results obtained so far</span>
+    fbest(k) = min(-sin(x(1,:)).*sin(x(1,:).^2/pi).^20-sin(x(2,:)).*sin(2*x(2,:).^2/pi).^20);
+
+    <span class="comment">% calculation of the best solution obtained so far</span>
+    <span class="keyword">if</span> fbest(k)&lt;=min(fbest)
+        x_best = v(:,find(fitness==max(fitness),1));
+    <span class="keyword">else</span>
+        fbest(k) = min(fbest);
+    <span class="keyword">end</span>
+
+    <span class="comment">% implementation of the roulette-wheel</span>
+    <span class="keyword">for</span> z = 1:SN
+        s = 0;
+        temp = rand;
+        count = 0;
+        <span class="keyword">while</span> s&lt;temp
+            s = s+pm(count+1);
+            count = count+1;
+        <span class="keyword">end</span>
+        x(:,z) = v(:,count); <span class="comment">%assignment of the new positions</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% check if the bees find better solutions or not. If not, they should be</span>
+    <span class="comment">% changed to scout bees</span>
+    <span class="keyword">if</span> k&gt;lim &amp;&amp; all(diff(fbest(end-lim:end)))==0
+        x = ul+(uh-ul)*rand(n,SN);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+figure(2)
+plot(x_best(1),x_best(2),<span class="string">'k.'</span>)
+
+figure(3)
+plot(fbest,<span class="string">'k'</span>)
+xlabel(<span class="string">'iteration number'</span>)
+ylabel(<span class="string">'min f(x_1,x_2)'</span>)
+
+x_best
+</pre><pre class="codeoutput">
+x_best =
+
+    2.1588
+    1.4375
+
+</pre><img vspace="5" hspace="5" src="ABC_1_01.png" alt=""> <img vspace="5" hspace="5" src="ABC_1_02.png" alt=""> <img vspace="5" hspace="5" src="ABC_1_03.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Bee Colony algorithm, written by Mojtaba Eslami
+
+clear all
+
+ul = 0; % lower bound of design variables
+uh = 4; % higher bound of design variables
+
+x = [ul:0.01:uh];
+y = [ul:0.01:uh];
+for i=1:length(x)
+    for j=1:length(y)
+        f(i,j) = -sin(y(j))*sin(y(j)^2/pi)^20-sin(x(i))*sin(2*x(i)^2/pi)^20;
+    end
+end
+
+figure(1);clf;hold on
+contour(x,y,f,20)
+xlabel('x_1')
+ylabel('x_2')
+
+axis([ul uh ul uh])
+colormap(gray)
+
+figure(2);clf;hold on
+contour(x,y,f,20)
+xlabel('x_1')
+ylabel('x_2')
+
+axis([ul uh ul uh])
+colormap(gray)
+
+SN = 30; % number of bees in colony
+n = 2;   % number of varibles of the optimization problem
+a = .1;
+
+% initialization
+x = ul+(uh-ul)*rand(n,SN);
+
+figure(1)
+plot(x(1,:),x(2,:),'k.')
+
+lim = 10;
+
+for k=1:200
+    
+    % setting the position of employed bees
+    for z=1:SN
+        temp = ceil(SN*rand);
+        v(1,z) = x(1,z)+(-a+2*a*rand).*(x(1,z)-x(1,ceil(SN*rand)));
+        while temp==z
+            temp = ceil(SN*rand);
+            v(1,z) = x(1,z)+(-a+2*a*rand).*(x(1,z)-x(1,ceil(SN*rand)));
+        end
+        
+        temp = ceil(SN*rand);
+        v(2,z) = x(2,z)+(-a+2*a*rand).*(x(2,z)-x(2,ceil(SN*rand)));
+        while temp==z
+            temp = ceil(SN*rand);
+            v(2,z) = x(2,z)+(-a+2*a*rand).*(x(2,z)-x(2,ceil(SN*rand)));
+        end
+    end
+    
+    % calculation of the fitness function
+    temp1 = -sin(v(1,:)).*sin(v(1,:).^2/pi).^20-sin(v(2,:)).*sin(2*v(2,:).^2/pi).^20;
+   
+    % onlooker bees
+    for z=1:length(temp1)
+        if temp1(z)>=0
+            fitness(z) = 1/(1+temp1(z));
+        else
+            fitness(z) = 1+abs(temp1(z));
+        end
+    end
+    
+    pm = fitness/sum(fitness);
+    
+    % saving the best results obtained so far
+    fbest(k) = min(-sin(x(1,:)).*sin(x(1,:).^2/pi).^20-sin(x(2,:)).*sin(2*x(2,:).^2/pi).^20);
+    
+    % calculation of the best solution obtained so far
+    if fbest(k)<=min(fbest)
+        x_best = v(:,find(fitness==max(fitness),1));
+    else
+        fbest(k) = min(fbest);
+    end
+    
+    % implementation of the roulette-wheel
+    for z = 1:SN 
+        s = 0;
+        temp = rand;
+        count = 0;
+        while s<temp
+            s = s+pm(count+1);
+            count = count+1;
+        end
+        x(:,z) = v(:,count); %assignment of the new positions
+    end
+    
+    % check if the bees find better solutions or not. If not, they should be
+    % changed to scout bees
+    if k>lim && all(diff(fbest(end-lim:end)))==0
+        x = ul+(uh-ul)*rand(n,SN);
+    end
+end
+
+figure(2)
+plot(x_best(1),x_best(2),'k.')
+
+figure(3)
+plot(fbest,'k')
+xlabel('iteration number')
+ylabel('min f(x_1,x_2)')
+
+x_best
+
+##### SOURCE END #####
+--></body></html>
